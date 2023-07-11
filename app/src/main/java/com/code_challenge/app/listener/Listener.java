@@ -21,7 +21,11 @@ public class Listener {
     public void handleListener(@Payload String message){
 
         try{
-
+            /*
+            *   Considering the messages given as "dolar,4.78", "SUZB3,5,80", "euro, 5"
+            *   it will be split by the first "," and the value will be assigned as type for first param
+            *   and the current value for second param.
+             */
             var splitMessage = message.split(",",2);
             handlerService.handleReceivedValues(splitMessage[0],  splitMessage[1]);
             log.info("[Listener] Received message {} from type {}", splitMessage[1], splitMessage[0]);
