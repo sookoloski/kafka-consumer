@@ -1,17 +1,14 @@
 package com.code_challenge.app.listener;
 
 import com.code_challenge.app.handler.HandlerService;
-
-import java.util.logging.Logger;
-
-import java.util.logging.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 
 @Component
+@Slf4j
 public class Listener {
 
     private final HandlerService handlerService;
@@ -21,22 +18,18 @@ public class Listener {
     }
 
     @KafkaListener(topics = "financial-demo", groupId = "test")
-    public void handleListener(@Payload String message,
-                               @Header("type") String type){
-
-        Logger logger
-                = Logger.getLogger(
-                Listener.class.getName());
+    public void handleListener(@Payload String message){
 
         try{
 
-            handlerService.handleReceivedValues(type, message);
-            logger.log(Level.INFO,"Received message {0} from {1} ", new Object[]{ message, type });
+            var splitMessage = message.split(",",2);
+            handlerService.handleReceivedValues(splitMessage[0],  splitMessage[1]);
+            log.info("[Listener] Received message {} from type {}", splitMessage[1], splitMessage[0]);
 
         } catch (Exception ex){
 
-            logger.log(Level.SEVERE,"Error while listening {0} trace {1}", new Object[] {ex.getMessage(), ex.getStackTrace()});
-
+            log.info("[Listener] Error while listening topics {} errmsg: {} trace {}", message,
+                    ex.getMessage(), ex.getStackTrace());
         }
     }
 }
